@@ -1,0 +1,5 @@
+// chakra ui -> CSS Framework -> doc
+// formik -> Handle formik -> npm i formik
+// yup -> validate -> npm i yup
+// axios ->  API calls -> npm i axios
+// react-query -> manage API calls (cashing, state, dll) -> doc
