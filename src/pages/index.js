@@ -1,4 +1,4 @@
-import { axiosIntance } from "@/lib/axios";
+import { useStudent } from "@/features/student/useStudent";
 import {
   Container,
   Heading,
@@ -10,34 +10,11 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import axios from "axios";
 import Head from "next/head";
-import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [students, setStudents] = useState([]); //Simpan data response dari API
-  const [isLoading, setIsLoading] = useState(false);
-  const fetchStudents = async () => {
-    setIsLoading(true);
-    try {
-      // Tambahkan timeout untuk menunggu 2 detik sebelum memanggil API
-      setTimeout(async () => {
-        // buat library untuk membuat base url di setiap endpointnya
-        const stundentsResponse = await axiosIntance.get(
-          "/api/student"
-        );
-        // console.log(stundentsResponse);
-        setStudents(stundentsResponse.data.data);
-        setIsLoading(false);
-      }, 2000);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchStudents();
-  }, []);
+  // ambil dari return useStudent, ":" -> mengubah nama alias
+  const { data:students, isLoading } = useStudent();
 
   const renderProducts = () => {
     return students.map((student) => {
