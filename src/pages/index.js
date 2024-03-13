@@ -1,3 +1,4 @@
+import { axiosIntance } from "@/lib/axios";
 import {
   Container,
   Heading,
@@ -21,8 +22,9 @@ export default function Home() {
     try {
       // Tambahkan timeout untuk menunggu 2 detik sebelum memanggil API
       setTimeout(async () => {
-        const stundentsResponse = await axios.get(
-          "http://localhost:3001/api/student"
+        // buat library untuk membuat base url di setiap endpointnya
+        const stundentsResponse = await axiosIntance.get(
+          "/api/student"
         );
         // console.log(stundentsResponse);
         setStudents(stundentsResponse.data.data);
