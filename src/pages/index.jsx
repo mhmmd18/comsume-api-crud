@@ -1,7 +1,11 @@
 import { useFetchStudents } from "@/features/student/useFetchStudents";
 import {
+  Button,
   Container,
+  FormControl,
+  FormLabel,
   Heading,
+  Input,
   Spinner,
   Table,
   Tbody,
@@ -9,6 +13,7 @@ import {
   Th,
   Thead,
   Tr,
+  VStack,
 } from "@chakra-ui/react";
 import Head from "next/head";
 
@@ -42,7 +47,7 @@ export default function Home() {
       <main>
         <Container>
           <Heading>Home Page</Heading>
-          <Table>
+          <Table mb={10}>
             <Thead>
               <Tr>
                 <Th>ID</Th>
@@ -59,6 +64,37 @@ export default function Home() {
               {renderProducts()}
             </Tbody>
           </Table>
+          <form>
+            <VStack spacing={2}>
+              <FormControl>
+                <FormLabel>Nama</FormLabel>
+                <Input />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Tanggal Lahir</FormLabel>
+                <Input type="date" />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Jenis Kelamin</FormLabel>
+                <Input />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Alamat</FormLabel>
+                <Input />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Kelas</FormLabel>
+                <Input type="number" />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Jurusan</FormLabel>
+                <Input />
+              </FormControl>
+              <Button type="submit" bg={"blue.500"}>
+                Add Student
+              </Button>
+            </VStack>
+          </form>
         </Container>
       </main>
     </>
