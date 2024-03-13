@@ -1,4 +1,5 @@
 import { useFetchStudents } from "@/features/student/useFetchStudents";
+import { axiosIntance } from "@/lib/axios";
 import {
   Button,
   Container,
@@ -10,16 +11,77 @@ import {
   Table,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
   VStack,
+  useToast,
 } from "@chakra-ui/react";
+import { useMutation } from "@tanstack/react-query";
+import { useFormik } from "formik";
 import Head from "next/head";
 
 export default function Home() {
-  // ambil dari return useStudent, ":" -> mengubah nama alias
-  const { data, isLoading } = useFetchStudents();
+  // ambil dari return useStudent, GET Students
+  const { data, isLoading: isLoadingStudent, refetch:refetchStudent } = useFetchStudents();
+  // muncul toast ketika berhasil add student
+  const toast = useToast();
+  // handdle validasi form
+  const formik = useFormik({
+    initialValues: {
+      nama: "",
+      tanggalLahir: "",
+      jenisKelamin: "",
+      alamat: "",
+      kelas: "",
+      jurusan: "",
+    },
+    // Post ke API Student
+    onSubmit: () => {
+      // body yang dikirim
+      const { nama, tanggalLahir, jenisKelamin, alamat, kelas, jurusan } =
+        formik.values;
+      // console.log(formik.values);
+      // mutete diambil paramater dari useMutation
+      mutate({
+        nama,
+        tanggalLahir,
+        jenisKelamin,
+        alamat,
+        kelas,
+        jurusan,
+      });
+      // setelah berhasil post, maka form input di reset
+      formik.setFieldValue("nama", "");
+      formik.setFieldValue("tanggalLahir", "");
+      formik.setFieldValue("jenisKelamin", "");
+      formik.setFieldValue("alamat", "");
+      formik.setFieldValue("kelas", "");
+      formik.setFieldValue("jurusan", "");
+      // mencetak toast
+      toast({
+        title: "Success",
+        description: "Student created successfully",
+        status: "success",
+      });
+    },
+  });
+  const { mutate, isLoading: createStudentIsLoading } = useMutation({
+    mutationFn: async (body) => {
+      // console.log(body);
+      const studentResponse = await axiosIntance.post("/api/student", body);
+      return studentResponse;
+    },
+    // ketika add sukses, otomatis data di update
+    onSuccess: () => {
+      refetchStudent ();
+    }
+  });
+
+  const handdleInputForm = (event) => {
+    formik.setFieldValue(event.target.name, event.target.value);
+  };
 
   const renderProducts = () => {
     return data?.map((student) => {
@@ -60,36 +122,65 @@ export default function Home() {
               </Tr>
             </Thead>
             <Tbody>
-              {isLoading ? <Spinner /> : null}
+              {isLoadingStudent ? <Spinner /> : null}
               {renderProducts()}
             </Tbody>
           </Table>
-          <form>
+          <form onSubmit={formik.handleSubmit}>
             <VStack spacing={2}>
+              {/* menangkap form input */}
+              <Text>{formik.values.alamat}</Text>
               <FormControl>
                 <FormLabel>Nama</FormLabel>
-                <Input />
+                <Input
+                  onChange={handdleInputForm}
+                  name="nama"
+                  value={formik.values.nama}
+                />
               </FormControl>
               <FormControl>
                 <FormLabel>Tanggal Lahir</FormLabel>
-                <Input type="date" />
+                <Input
+                  onChange={handdleInputForm}
+                  name="tanggalLahir"
+                  type="date"
+                  value={formik.values.tanggalLahir}
+                />
               </FormControl>
               <FormControl>
                 <FormLabel>Jenis Kelamin</FormLabel>
-                <Input />
+                <Input
+                  onChange={handdleInputForm}
+                  name="jenisKelamin"
+                  value={formik.values.jenisKelamin}
+                />
               </FormControl>
               <FormControl>
                 <FormLabel>Alamat</FormLabel>
-                <Input />
+                <Input
+                  onChange={handdleInputForm}
+                  name="alamat"
+                  value={formik.values.alamat}
+                />
               </FormControl>
               <FormControl>
                 <FormLabel>Kelas</FormLabel>
-                <Input type="number" />
+                <Input
+                  onChange={handdleInputForm}
+                  name="kelas"
+                  type="number"
+                  value={formik.values.kelas}
+                />
               </FormControl>
               <FormControl>
                 <FormLabel>Jurusan</FormLabel>
-                <Input />
+                <Input
+                  onChange={handdleInputForm}
+                  name="jurusan"
+                  value={formik.values.jurusan}
+                />
               </FormControl>
+              {createStudentIsLoading ? <Spinner /> : null}
               <Button type="submit" bg={"blue.500"}>
                 Add Student
               </Button>
