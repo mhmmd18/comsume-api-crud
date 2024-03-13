@@ -1,7 +1,14 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 export default function App({ Component, pageProps }) {
-  const queryClient = new QueryClient();
+  // setting default agar semua page tidak perlu memanggil query
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
   return (
     <QueryClientProvider client={queryClient}>
       <ChakraProvider>

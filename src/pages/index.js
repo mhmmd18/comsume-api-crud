@@ -1,4 +1,4 @@
-import { useStudent } from "@/features/student/useStudent";
+import { useFetchStudents } from "@/features/student/useFetchStudents";
 import {
   Container,
   Heading,
@@ -14,10 +14,10 @@ import Head from "next/head";
 
 export default function Home() {
   // ambil dari return useStudent, ":" -> mengubah nama alias
-  const { data:students, isLoading } = useStudent();
+  const { data, isLoading } = useFetchStudents();
 
   const renderProducts = () => {
-    return students.map((student) => {
+    return data?.map((student) => {
       return (
         <Tr key={student._id}>
           <Td>{student._id}</Td>

@@ -1,4 +1,4 @@
-import { axiosIntance } from "@/lib/axios";
+import { useFetchStudents } from "@/features/student/useFetchStudents";
 import {
   Container,
   Heading,
@@ -10,22 +10,12 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
 
 export default function Students() {
-  const { data, isLoading } = useQuery({
-    queryFn: async () => {
-      const stundentsResponse = await axiosIntance.get("/api/student");
-        // console.log(stundentsResponse);
-        // console.log("AXIOS REQUEST");
-      return stundentsResponse.data.data;
-    },
-    // agar tidak call api secara terus menerus ketika pindah tab
-    refetchOnWindowFocus: false,
-  });
+  const { data, isLoading } = useFetchStudents();
 
-  const renderProducts = () => {
+  const renderStudents = () => {
     return data?.map((student) => {
       return (
         <Tr key={student._id}>
@@ -65,7 +55,7 @@ export default function Students() {
             </Thead>
             <Tbody>
               {isLoading ? <Spinner /> : null}
-              {renderProducts()}
+              {renderStudents()}
             </Tbody>
           </Table>
         </Container>
