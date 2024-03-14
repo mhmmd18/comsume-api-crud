@@ -1,5 +1,5 @@
+import { useCreateStudent } from "@/features/student/useCreateStudent";
 import { useFetchStudents } from "@/features/student/useFetchStudents";
-import { axiosIntance } from "@/lib/axios";
 import {
   Button,
   Container,
@@ -18,7 +18,6 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import Head from "next/head";
 
@@ -67,12 +66,7 @@ export default function Home() {
       });
     },
   });
-  const { mutate, isLoading: createStudentIsLoading } = useMutation({
-    mutationFn: async (body) => {
-      // console.log(body);
-      const studentResponse = await axiosIntance.post("/api/student", body);
-      return studentResponse;
-    },
+  const { mutate, isLoading: createStudentIsLoading } = useCreateStudent({
     // ketika add sukses, otomatis data di update
     onSuccess: () => {
       refetchStudent ();
