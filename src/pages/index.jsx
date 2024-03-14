@@ -1,5 +1,6 @@
 import { useCreateStudent } from "@/features/student/useCreateStudent";
 import { useFetchStudents } from "@/features/student/useFetchStudents";
+import { axiosIntance } from "@/lib/axios";
 import {
   Button,
   Container,
@@ -18,14 +19,23 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
+import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import Head from "next/head";
 
 export default function Home() {
   // ambil dari return useStudent, GET Students
-  const { data, isLoading: isLoadingStudent, refetch:refetchStudent } = useFetchStudents();
+  const {
+    data,
+    isLoading: isLoadingStudent,
+    refetch: refetchStudent,
+  } = useFetchStudents();
   // muncul toast ketika berhasil add student
   const toast = useToast();
+  // handdle input form
+  const handdleInputForm = (event) => {
+    formik.setFieldValue(event.target.name, event.target.value);
+  };
   // handdle validasi form
   const formik = useFormik({
     initialValues: {
@@ -43,7 +53,7 @@ export default function Home() {
         formik.values;
       // console.log(formik.values);
       // mutete diambil paramater dari useMutation
-      mutate({
+      createStudent({
         nama,
         tanggalLahir,
         jenisKelamin,
@@ -66,28 +76,61 @@ export default function Home() {
       });
     },
   });
-  const { mutate, isLoading: createStudentIsLoading } = useCreateStudent({
-    // ketika add sukses, otomatis data di update
+  // POST
+  const { mutate: createStudent, isLoading: createStudentIsLoading } =
+    useCreateStudent({
+      // ketika add sukses, otomatis data di update
+      onSuccess: () => {
+        refetchStudent();
+      },
+    });
+
+  // DELETE
+  const { mutate: deleteStudent } = useMutation({
+    mutationFn: async (id) => {
+      const studentResponse = await axiosIntance.delete(`/api/student/${id}`);
+      console.log(studentResponse);
+      return studentResponse;
+    },
     onSuccess: () => {
-      refetchStudent ();
-    }
+      refetchStudent();
+    },
   });
 
-  const handdleInputForm = (event) => {
-    formik.setFieldValue(event.target.name, event.target.value);
-  };
+  const confirmDelete = (id) => {
+    const isDelete = confirm("Are you sure?");
+    if (isDelete) {
+      deleteStudent(id);
+      toast({
+        title: "Success",
+        description: "Student deleted successfully",
+        status: "info",
+      })
+    }
+  }
+  
 
   const renderProducts = () => {
-    return data?.map((student) => {
+    return data?.map((student, index) => {
       return (
         <Tr key={student._id}>
-          <Td>{student._id}</Td>
+          <Td>{index + 1}</Td>
           <Td>{student.nama}</Td>
           <Td>{student.tanggalLahir}</Td>
           <Td>{student.jenisKelamin}</Td>
           <Td>{student.alamat}</Td>
           <Td>{student.kelas}</Td>
           <Td>{student.jurusan}</Td>
+          <Td>
+            <Button
+              colorScheme="red"
+              onClick={() => {
+                confirmDelete(student._id);
+              }}
+            >
+              Delete
+            </Button>
+          </Td>
         </Tr>
       );
     });
@@ -106,13 +149,14 @@ export default function Home() {
           <Table mb={10}>
             <Thead>
               <Tr>
-                <Th>ID</Th>
+                <Th>No</Th>
                 <Th>Nama</Th>
                 <Th>Tanggal Lahir</Th>
                 <Th>Jenis Kelamin</Th>
                 <Th>Alamat</Th>
                 <Th>Kelas</Th>
                 <Th>Jurusan</Th>
+                <Th>Aksi</Th>
               </Tr>
             </Thead>
             <Tbody>
