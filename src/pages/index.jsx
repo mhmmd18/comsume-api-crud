@@ -1,4 +1,5 @@
 import { useCreateStudent } from "@/features/student/useCreateStudent";
+import { useDeleteStudent } from "@/features/student/useDeleteStudent";
 import { useFetchStudents } from "@/features/student/useFetchStudents";
 import { axiosIntance } from "@/lib/axios";
 import {
@@ -86,12 +87,7 @@ export default function Home() {
     });
 
   // DELETE
-  const { mutate: deleteStudent } = useMutation({
-    mutationFn: async (id) => {
-      const studentResponse = await axiosIntance.delete(`/api/student/${id}`);
-      console.log(studentResponse);
-      return studentResponse;
-    },
+  const { mutate: deleteStudent } = useDeleteStudent({
     onSuccess: () => {
       refetchStudent();
     },
@@ -105,10 +101,9 @@ export default function Home() {
         title: "Success",
         description: "Student deleted successfully",
         status: "info",
-      })
+      });
     }
-  }
-  
+  };
 
   const renderProducts = () => {
     return data?.map((student, index) => {
