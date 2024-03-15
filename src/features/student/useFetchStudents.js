@@ -8,5 +8,6 @@ export const useFetchStudents = () => {
       //   console.log(stundentsResponse);
       return stundentsResponse.data.data;
     },
+    queryKey: ["fetch-students"],
   });
 };

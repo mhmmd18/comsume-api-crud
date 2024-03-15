@@ -40,6 +40,7 @@ export default function Home() {
   // handdle validasi form
   const formik = useFormik({
     initialValues: {
+      id: "",
       nama: "",
       tanggalLahir: "",
       jenisKelamin: "",
@@ -50,31 +51,50 @@ export default function Home() {
     // Post ke API Student
     onSubmit: () => {
       // body yang dikirim
-      const { nama, tanggalLahir, jenisKelamin, alamat, kelas, jurusan } =
+      const { nama, tanggalLahir, jenisKelamin, alamat, kelas, jurusan, id } =
         formik.values;
       // console.log(formik.values);
-      // mutete diambil paramater dari useMutation
-      createStudent({
-        nama,
-        tanggalLahir,
-        jenisKelamin,
-        alamat,
-        kelas,
-        jurusan,
-      });
+      // jika ada id, maka update, jika tidak, create
+      if (id) {
+        updateStudent({
+          id,
+          nama,
+          tanggalLahir,
+          jenisKelamin,
+          alamat,
+          kelas,
+          jurusan,
+        });
+        toast({
+          title: "Success",
+          description: "Student updated successfully",
+          status: "success",
+        });
+      } else {
+        // mutete diambil paramater dari useMutation
+        createStudent({
+          nama,
+          tanggalLahir,
+          jenisKelamin,
+          alamat,
+          kelas,
+          jurusan,
+        });
+        // mencetak toast
+        toast({
+          title: "Success",
+          description: "Student created successfully",
+          status: "success",
+        });
+      }
       // setelah berhasil post, maka form input di reset
+      formik.setFieldValue("id", "");
       formik.setFieldValue("nama", "");
       formik.setFieldValue("tanggalLahir", "");
       formik.setFieldValue("jenisKelamin", "");
       formik.setFieldValue("alamat", "");
       formik.setFieldValue("kelas", "");
       formik.setFieldValue("jurusan", "");
-      // mencetak toast
-      toast({
-        title: "Success",
-        description: "Student created successfully",
-        status: "success",
-      });
     },
   });
   // POST
@@ -93,8 +113,23 @@ export default function Home() {
     },
   });
 
+  // PUT
+  const { mutate: updateStudent, isLoading: updateStudentIsLoading } =
+    useMutation({
+      mutationFn: async ({ id, ...body }) => {
+        const studentResponse = await axiosIntance.put(
+          `/api/student/${id}`,
+          body
+        );
+        return studentResponse;
+      },
+      onSuccess: () => {
+        refetchStudent();
+      },
+    });
+
   const confirmDelete = (id) => {
-    const isDelete = confirm("Are you sure?");
+    const isDelete = confirm("Are you sure delete this student?");
     if (isDelete) {
       deleteStudent(id);
       toast({
@@ -103,6 +138,17 @@ export default function Home() {
         status: "info",
       });
     }
+  };
+
+  const onEditClick = (student) => {
+    formik.setFieldValue("id", student._id);
+    formik.setFieldValue("nama", student.nama);
+    formik.setFieldValue("tanggalLahir", student.tanggalLahir);
+    formik.setFieldValue("jenisKelamin", student.jenisKelamin);
+    formik.setFieldValue("alamat", student.alamat);
+    formik.setFieldValue("kelas", student.kelas);
+    formik.setFieldValue("jurusan", student.jurusan);
+    console.log(student);
   };
 
   const renderProducts = () => {
@@ -116,6 +162,16 @@ export default function Home() {
           <Td>{student.alamat}</Td>
           <Td>{student.kelas}</Td>
           <Td>{student.jurusan}</Td>
+          <Td>
+            <Button
+              colorScheme="yellow"
+              onClick={() => {
+                onEditClick(student);
+              }}
+            >
+              Edit
+            </Button>
+          </Td>
           <Td>
             <Button
               colorScheme="red"
@@ -151,7 +207,7 @@ export default function Home() {
                 <Th>Alamat</Th>
                 <Th>Kelas</Th>
                 <Th>Jurusan</Th>
-                <Th>Aksi</Th>
+                <Th colSpan={2}>Aksi</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -162,7 +218,15 @@ export default function Home() {
           <form onSubmit={formik.handleSubmit}>
             <VStack spacing={2}>
               {/* menangkap form input */}
-              <Text>{formik.values.alamat}</Text>
+              {/* <Text>{formik.values.alamat}</Text> */}
+              <FormControl>
+                <FormLabel>ID</FormLabel>
+                <Input
+                  onChange={handdleInputForm}
+                  name="id"
+                  value={formik.values.id}
+                />
+              </FormControl>
               <FormControl>
                 <FormLabel>Nama</FormLabel>
                 <Input
@@ -201,7 +265,6 @@ export default function Home() {
                 <Input
                   onChange={handdleInputForm}
                   name="kelas"
-                  type="number"
                   value={formik.values.kelas}
                 />
               </FormControl>
@@ -215,7 +278,7 @@ export default function Home() {
               </FormControl>
               {createStudentIsLoading ? <Spinner /> : null}
               <Button type="submit" bg={"blue.500"}>
-                Add Student
+                Submit
               </Button>
             </VStack>
           </form>
