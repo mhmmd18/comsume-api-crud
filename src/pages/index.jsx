@@ -25,14 +25,22 @@ import Head from "next/head";
 import { useState } from "react";
 
 export default function Home() {
+  // muncul toast
+  const toast = useToast();
   // ambil dari return useStudent, GET Students
   const {
     data,
     isLoading: isLoadingStudent,
     refetch: refetchStudent,
-  } = useFetchStudents();
-  // muncul toast ketika berhasil add student
-  const toast = useToast();
+  } = useFetchStudents({
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to fetch students",
+        status: "error",
+      });
+    },
+  });
   // handdle input form
   const handdleInputForm = (event) => {
     formik.setFieldValue(event.target.name, event.target.value);
