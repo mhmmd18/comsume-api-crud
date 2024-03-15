@@ -1,7 +1,9 @@
-import { useCreateStudent } from "@/features/student/useCreateStudent";
-import { useDeleteStudent } from "@/features/student/useDeleteStudent";
-import { useFetchStudents } from "@/features/student/useFetchStudents";
-import { useUpdateStudent } from "@/features/student/useUpdateStudent";
+import {
+  useFetchStudents,
+  useCreateStudent,
+  useUpdateStudent,
+  useDeleteStudent,
+} from "@/features/student";
 import {
   Button,
   Container,
