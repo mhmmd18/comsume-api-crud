@@ -1,7 +1,7 @@
 import { useCreateStudent } from "@/features/student/useCreateStudent";
 import { useDeleteStudent } from "@/features/student/useDeleteStudent";
 import { useFetchStudents } from "@/features/student/useFetchStudents";
-import { axiosIntance } from "@/lib/axios";
+import { useUpdateStudent } from "@/features/student/useUpdateStudent";
 import {
   Button,
   Container,
@@ -20,9 +20,9 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import Head from "next/head";
+import { useState } from "react";
 
 export default function Home() {
   // ambil dari return useStudent, GET Students
@@ -115,14 +115,7 @@ export default function Home() {
 
   // PUT
   const { mutate: updateStudent, isLoading: updateStudentIsLoading } =
-    useMutation({
-      mutationFn: async ({ id, ...body }) => {
-        const studentResponse = await axiosIntance.put(
-          `/api/student/${id}`,
-          body
-        );
-        return studentResponse;
-      },
+    useUpdateStudent({
       onSuccess: () => {
         refetchStudent();
       },
@@ -140,6 +133,8 @@ export default function Home() {
     }
   };
 
+  // Buat state untuk mengontrol visibilitas form control
+  const [isEditing, setIsEditing] = useState(false);
   const onEditClick = (student) => {
     formik.setFieldValue("id", student._id);
     formik.setFieldValue("nama", student.nama);
@@ -148,7 +143,8 @@ export default function Home() {
     formik.setFieldValue("alamat", student.alamat);
     formik.setFieldValue("kelas", student.kelas);
     formik.setFieldValue("jurusan", student.jurusan);
-    console.log(student);
+    // Set isEditing menjadi true untuk menampilkan form control
+    setIsEditing(true);
   };
 
   const renderProducts = () => {
@@ -186,6 +182,7 @@ export default function Home() {
       );
     });
   };
+
   return (
     <>
       <Head>
@@ -215,11 +212,14 @@ export default function Home() {
               {renderProducts()}
             </Tbody>
           </Table>
+          <Heading>
+            {isEditing ? "Form Edit Student" : "Form Add Student"}
+          </Heading>
           <form onSubmit={formik.handleSubmit}>
             <VStack spacing={2}>
               {/* menangkap form input */}
               {/* <Text>{formik.values.alamat}</Text> */}
-              <FormControl>
+              <FormControl display={isEditing ? "block" : "none"}>
                 <FormLabel>ID</FormLabel>
                 <Input
                   onChange={handdleInputForm}
@@ -276,7 +276,9 @@ export default function Home() {
                   value={formik.values.jurusan}
                 />
               </FormControl>
-              {createStudentIsLoading ? <Spinner /> : null}
+              {createStudentIsLoading || updateStudentIsLoading ? (
+                <Spinner />
+              ) : null}
               <Button type="submit" bg={"blue.500"}>
                 Submit
               </Button>
